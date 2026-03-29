@@ -1,0 +1,53 @@
+# ── Credentials & Secrets ─────────────────────────────────────────────────────
+# LinkedIn access token and person ID are in Windows System Environment Variables
+# Google Drive OAuth tokens
+*.token.json
+*.credentials.json
+.gdrive-write-token.json
+gcp-oauth.keys.json
+
+# Google Drive file IDs (exposes your personal Drive structure)
+drive-file-ids.json
+
+# ── Runtime / Generated Data ──────────────────────────────────────────────────
+# These are live operational files — not part of the codebase
+drafts.md
+schedule.md
+audit-log.md
+audit-report.md
+generation-log.md
+image-log.md
+image-plan.json
+audit-state.json
+post_text_temp.txt
+
+# Run logs (timestamped per-run logs — can be large)
+run-logs/
+
+# Generated images (binary, large)
+images/
+
+# ── Python ────────────────────────────────────────────────────────────────────
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.egg-info/
+dist/
+build/
+.env
+.venv/
+venv/
+
+# ── OS / Editor ───────────────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+desktop.ini
+*.swp
+*.swo
+.vscode/
+.idea/
+
+# ── Binary duplicate of the .md reference doc ─────────────────────────────────
+LinkedIn_Automation_System_Reference.docx

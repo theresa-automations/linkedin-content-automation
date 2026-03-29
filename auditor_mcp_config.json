@@ -1,0 +1,14 @@
+{
+  "mcpServers": {
+    "local-files": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-filesystem",
+        "C:\\Users\\pc\\Documents\\Catalyst-Projects",
+        "C:\\Users\\pc\\Documents\\LinkedIn Project",
+        "H:\\"
+      ]
+    }
+  }
+}

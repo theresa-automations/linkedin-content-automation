@@ -1,0 +1,28 @@
+{
+  "mcpServers": {
+    "linkedin": {
+      "command": "node",
+      "args": ["C:\\Users\\pc\\linkedin-mcp\\index.js"]
+    },
+    "local-files": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-filesystem",
+        "C:\\Users\\pc\\Documents\\Catalyst-Projects",
+        "C:\\Users\\pc\\Documents\\LinkedIn Project",
+        "H:\\"
+      ]
+    },
+    "gdrive-personal": {
+      "command": "node",
+      "args": [
+        "C:\\Users\\pc\\gdrive-mcp-server\\dist\\index.js"
+      ],
+      "env": {
+        "GOOGLE_APPLICATION_CREDENTIALS": "C:\\Users\\pc\\gdrive-personal-mcp\\credentials\\gcp-oauth.keys.json",
+        "MCP_GDRIVE_CREDENTIALS": "C:\\Users\\pc\\gdrive-personal-mcp\\credentials\\.gdrive-personal-credentials.json"
+      }
+    }
+  }
+}

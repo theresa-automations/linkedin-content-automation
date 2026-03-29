@@ -1,0 +1,321 @@
+================================================================================
+LINKEDIN PROJECT — STATE OF THINGS LOG
+Theresa Erhumwunse | AI-Automated LinkedIn Content System
+================================================================================
+PURPOSE: This file is the project memory for Claude (and humans).
+         Read this first in any new conversation to get full context
+         without scanning every file in the project.
+         Update this file after every meaningful change or session.
+================================================================================
+
+
+────────────────────────────────────────────────────────────────────────────────
+SYSTEM OVERVIEW
+────────────────────────────────────────────────────────────────────────────────
+A fully automated LinkedIn content pipeline that:
+  1. Generates post batches from project writeup files (linkedin_generator.py)
+  2. Audits and scores drafts, auto-regenerates failures (linkedin_auditor.py)
+  3. Plans and renders Mermaid diagram images for posts (linkedin_image_planner.py + linkedin_image_gen.py)
+  4. Posts to LinkedIn on scheduled dates with optional images (linkedin_runner.py via LINKEDIN-POSTING-WORKFLOW.md)
+
+Content persona: Theresa Erhumwunse — Automation Engineer / AI Systems Builder
+Content strategy: Rotating 7 post types over a 30-day arc, grounded in real projects
+Timezone: WAT (UTC+1)
+Scheduling: Windows Task Scheduler triggers Python scripts on set days/times
+
+
+────────────────────────────────────────────────────────────────────────────────
+KEY FILES
+────────────────────────────────────────────────────────────────────────────────
+SCRIPTS
+  linkedin_generator.py       — Batch post generator (runs Saturdays via Claude CLI)
+  linkedin_auditor.py         — Draft auditor + auto-regen (runs Sundays 6-8 PM WAT)
+  linkedin_image_planner.py   — Reads approved drafts, writes image-plan.json
+  linkedin_image_gen.py       — Renders images from image-plan.json using Mermaid
+  linkedin_image_post.py      — Posts text + image to LinkedIn via Python (used by runner)
+  linkedin_runner.py          — Daily poster orchestrator (runs Mon-Fri 9 AM WAT)
+
+WORKFLOW DOCS (Claude reads these as prompts)
+  LINKEDIN-GENERATOR-WORKFLOW.md    — Generator instructions
+  LINKEDIN-AUDITOR-WORKFLOW.md      — Auditor instructions + regen decision logic
+  LINKEDIN-IMAGE-GEN-WORKFLOW.md    — Image planning + generation instructions
+  LINKEDIN-POSTING-WORKFLOW.md      — Daily posting instructions
+
+DATA FILES
+  drafts.md                   — All generated post drafts with statuses
+  schedule.md                 — Posting calendar with dates and statuses
+  audit-log.md                — Record of all published posts
+  audit-report.md             — Latest auditor run report
+  generation-log.md           — Record of all generator runs
+  image-log.md                — Record of image generation runs
+  image-plan.json             — Structured image specs for current batch
+  content-strategy.md         — Persona, post types, tone, formatting rules
+  content-guidelines.md       — Detailed writing guidelines
+
+CONFIG
+  linkedin_mcp_config.json    — MCP server config (LinkedIn + local-files MCPs)
+                                ⚠️ Contains LinkedIn credentials in plain text (see Fix 3 below)
+
+FOLDERS
+  Project Completed\          — Source .md project writeups for content generation
+  images\                     — Generated post images (post-[N].png)
+  run-logs\                   — Timestamped logs from every script run
+  Archive\                    — Old/unused files
+
+
+────────────────────────────────────────────────────────────────────────────────
+CURRENT STATE (as of 2026-03-20)
+────────────────────────────────────────────────────────────────────────────────
+PROJECT 1 (catalyst-cs-automation.md) — IN PROGRESS
+  Posts generated:  14  (Posts 2–15, drafts.md)
+  Posts published:  7   (Posts 2–7, all POSTED in schedule.md and audit-log.md)
+  Posts remaining:  7   (Posts 8–15, status: POST PENDING in schedule.md)
+  Draft statuses:   Posts 8–15 are PENDING REVIEW in drafts.md — not yet audited/approved
+
+PROJECT 2 (linkedin-automation-system.md) — NOT STARTED
+  Planned posts: 18 (Posts 16–33)
+  Planned dates: 2026-04-10 to 2026-05-11
+  Status: Forward-planned in schedule.md notes but generator has NOT run yet.
+          Do not treat these as confirmed until generation-log.md is updated.
+
+IMAGES
+  image-plan.json covers Posts 5–15 only.
+  Posts 2–4 were published without image-plan.json entries (text-only or manual).
+  No images have been generated for Posts 8–15 yet.
+
+
+────────────────────────────────────────────────────────────────────────────────
+KNOWN INCONSISTENCIES — PENDING FIXES
+────────────────────────────────────────────────────────────────────────────────
+Session date: 2026-03-20
+Identified by: Claude Code consistency audit
+Status: ALL PENDING — fixes planned, none applied yet
+Plan: Work through fixes together starting next session (Fix 1 first)
+
+┌────┬──────────┬────────────────────────────────────────────────────────────────────┐
+│ #  │ Severity │ Description                                                        │
+├────┼──────────┼────────────────────────────────────────────────────────────────────┤
+│ 1  │ CRITICAL │ MCP config split: generator + auditor used AppData config,          │
+│    │          │ runner + image_planner used project config. Two different LinkedIn  │
+│    │          │ tokens existed across the two files. Confirmed Token A (project     │
+│    │          │ config) is active — used to post successfully on 2026-03-20.        │
+│    │          │ RESOLVED: consolidated all 4 scripts to linkedin_mcp_config.json.   │
+│    │          │ Added gdrive-personal to project config to preserve Drive sync.     │
+├────┼──────────┼────────────────────────────────────────────────────────────────────┤
+│ 2  │ HIGH     │ RESOLVED — LINKEDIN-POSTING-WORKFLOW.md lines 117-120 corrected.  │
+│    │          │ Replaced incorrect "mirror drafts.md" note with accurate two-state │
+│    │          │ description: POST PENDING → POSTED only.                           │
+├────┼──────────┼────────────────────────────────────────────────────────────────────┤
+│ 3  │ HIGH     │ RESOLVED — LinkedIn credentials moved to Windows System env vars.  │
+│    │          │ Removed from linkedin_mcp_config.json (MCP server inherits them).  │
+│    │          │ linkedin_image_post.py updated to read from os.environ.            │
+├────┼──────────┼────────────────────────────────────────────────────────────────────┤
+│ 4  │ MEDIUM   │ RESOLVED — linkedin_generator.py day guard fixed.                  │
+│    │          │ `not in [5, 6]` → `!= 5` (Saturday only, Sunday removed).         │
+├────┼──────────┼────────────────────────────────────────────────────────────────────┤
+│ 5  │ MEDIUM   │ RESOLVED — Auditor hour restriction removed + doc updated.         │
+│    │          │ is_run_time() now checks Sunday only (no hour window).             │
+│    │          │ Runs any time on Sunday — Task Scheduler controls the timing.      │
+├────┼──────────┼────────────────────────────────────────────────────────────────────┤
+│ 6  │ MEDIUM   │ RESOLVED — Regen decision moved from Claude to Python.             │
+│    │          │ determine_regen_mode() added to linkedin_auditor.py.              │
+│    │          │ Claude writes scores only. Python applies threshold math.          │
+├────┼──────────┼────────────────────────────────────────────────────────────────────┤
+│ 7  │ LOW      │ image-plan.json missing entries for drafts 2–4 (already POSTED)   │
+│    │          │ Historical gap — those posts were published without image plan     │
+│    │          │ No code fix needed. Documented here for awareness.                 │
+├────┼──────────┼────────────────────────────────────────────────────────────────────┤
+│ 8  │ LOW      │ schedule.md pre-populates Project 2 (Posts 16–33) before          │
+│    │          │ generator has run for that project                                 │
+│    │          │ These are planning assumptions, not confirmed posts                │
+│    │          │ No code fix needed. Documented here for awareness.                 │
+└────┴──────────┴────────────────────────────────────────────────────────────────────┘
+
+
+────────────────────────────────────────────────────────────────────────────────
+CHANGE LOG
+────────────────────────────────────────────────────────────────────────────────
+[2026-03-20] — Session: Consistency audit + planning
+  - Claude Code performed full project audit
+  - Identified 8 inconsistencies (see table above)
+  - Fixes planned, none applied yet
+  - state_of_things_log.txt created (this file)
+  - Next session: begin applying fixes starting with Fix 1
+
+[2026-03-21] — Fix 1 RESOLVED: MCP config consolidation
+  - All 4 scripts now point to linkedin_mcp_config.json (project folder)
+  - Added gdrive-personal block to linkedin_mcp_config.json
+  - Changed MCP_CONFIG in linkedin_generator.py (line 28)
+  - Changed MCP_CONFIG in linkedin_auditor.py (line 47)
+  - linkedin_runner.py and linkedin_image_planner.py were already correct
+  - Token A (project config) confirmed active — last used 2026-03-20 Post #7
+  - AppData claude_desktop_config.json no longer used by any LinkedIn scripts
+
+[2026-03-20] — Update: Banned words list added to generator workflow
+  - File: LINKEDIN-GENERATOR-WORKFLOW.md
+  - Added BANNED WORDS AND PHRASES block to "Additional rules" section
+  - 44 banned words/phrases across 5 categories:
+      AI Giveaway Words (12): delve, unlock, unleash, harness, foster, elevate,
+        revolutionize, transform, empower, underscore, interplay, synergy
+      Navigational Phrases (12): "In conclusion,", "Furthermore,", "Moreover,", etc.
+      Adjective Overload (12): comprehensive, robust, dynamic, crucial, essential, etc.
+      Helpful Assistant Vibe (12): "Dive in", holistic, endeavor, demystify, etc.
+      Generic Closer Words (8): realm, journey, navigate, beacon, catalyst, etc.
+  - Updated PASS 3 in SELF-REVIEW to explicitly scan against the banned list
+  - Note: "catalyst" is banned as a descriptive word only. Allowed as a proper noun
+    (Catalyst Case / Catalyst Lifestyle). E.g. "acting as a catalyst" = banned,
+    "built for Catalyst Case" = fine.
+
+
+────────────────────────────────────────────────────────────────────────────────
+NEXT SESSION — START HERE
+────────────────────────────────────────────────────────────────────────────────
+Resume fixing inconsistencies in order. Fix 1 is next.
+
+Fix 1: DONE — see change log above.
+
+Fix 2 (HIGH) — RESOLVED:
+  File:   LINKEDIN-POSTING-WORKFLOW.md lines 117-120
+  Change: Replaced incorrect "schedule mirrors drafts exactly" note with accurate
+          two-state description (POST PENDING / POSTED only)
+  Why:    Doc said schedule.md should show PENDING REVIEW and APPROVED — but it
+          never does. Only drafts.md tracks review stages. schedule.md just tracks
+          queued vs posted. Runner was correct; doc was wrong.
+
+[2026-03-21] — Fix 3 RESOLVED: LinkedIn credentials secured
+  - LINKEDIN_ACCESS_TOKEN and LINKEDIN_PERSON_ID removed from linkedin_mcp_config.json
+  - Both now stored as Windows System Environment Variables
+  - MCP server (Node.js) inherits them automatically from system env
+  - linkedin_image_post.py updated: load_credentials() now reads os.environ
+    instead of parsing the JSON file. Raises clear error if vars are missing.
+
+[2026-03-21] — Fix 4 RESOLVED: Generator day guard corrected
+  - linkedin_generator.py line 120: `not in [5, 6]` → `!= 5`
+  - Generator now runs Saturday only. Sunday was a leftover from testing.
+
+[2026-03-21] — Fix 5 RESOLVED: Auditor hour restriction removed
+  - linkedin_auditor.py is_run_time(): removed hour window (18 <= hour < 20)
+  - Now checks Sunday only — runs any time the script fires on a Sunday
+  - Fixes: laptop-off-at-6PM scenario + enables on-demand Sunday runs
+  - LINKEDIN-AUDITOR-WORKFLOW.md header updated to reflect new behavior
+  - RUN_HOUR constant kept in code but no longer used in is_run_time()
+
+[2026-03-21] — Fix 6 RESOLVED: Regen decision logic moved to Python
+  - New get_failed_draft_numbers() — reads AUDITOR FLAGGED/REJECTED from drafts.md
+  - New determine_regen_mode() — pure Python math using threshold constants
+  - run_draft_audit() prompt updated: Claude writes scores only, not regen_mode
+  - main() updated: calls determine_regen_mode() after audit, writes decision to state
+  - Stale skip message fixed: "Not Sunday 6 PM WAT" → "Not Sunday"
+  - LINKEDIN-AUDITOR-WORKFLOW.md Step 3 updated: "reference only, Python decides"
+  - LINKEDIN-AUDITOR-WORKFLOW.md Step 5 updated: removed regen fields from Claude's JSON
+
+Fixes 7 + 8 (LOW) — documentation only, no code changes needed:
+  Fix 7: image-plan.json missing posts 2-4 — historical gap, acknowledged
+  Fix 8: schedule.md pre-populates Project 2 — planning assumption, acknowledged
+
+[2026-03-21] — Google Drive sync fully implemented
+  - linkedin_drive_sync.py created (new utility module)
+  - One-time OAuth auth completed — write-capable token saved to
+    C:\Users\pc\gdrive-personal-mcp\credentials\.gdrive-write-token.json
+  - Initial upload: 12 .md files uploaded to Drive folder 19ott1CnfEbvva99aK71XQ_9ffadSlMit
+  - drive-file-ids.json created — maps all 12 filenames to their Drive file IDs
+  - Generator syncs: drafts.md, schedule.md, generation-log.md
+  - Auditor syncs:   drafts.md, audit-report.md
+  - Runner syncs:    drafts.md, schedule.md, audit-log.md
+  - Note: gdrive MCP server (read-only) is separate from this write sync — both coexist
+  - Note: state_of_things_log.txt and drafts.md are intentionally NOT in Drive sync
+    (log is internal tooling; drafts managed via drive-file-ids.json map)
+
+[2026-03-21] — Google Drive personal auth fixed
+  - Ran OAuth flow for gdrive-personal account
+  - .gdrive-personal-credentials.json created at C:\Users\pc\gdrive-personal-mcp\credentials\
+  - MCP server tested and confirmed responding (gdrive_search + gdrive_read_file tools live)
+  - Drive sync will now work for generator and auditor scripts
+
+After all fixes are applied:
+  - Update the CHANGE LOG section above with what was changed
+  - Update KNOWN INCONSISTENCIES table (mark resolved items as DONE)
+
+[2026-03-22] — Auditor: MCP config split + timeout added
+  - Problem: auditor hung for 3+ hours — Claude CLI subprocess had TIMEOUT_SECONDS=None
+    and was loading all 3 MCP servers (linkedin + local-files + gdrive-personal)
+    even though auditor only needs local-files
+  - Fix 1: Created auditor_mcp_config.json with local-files only
+  - Fix 2: Changed MCP_CONFIG in linkedin_auditor.py to auditor_mcp_config.json
+  - Fix 3: TIMEOUT_SECONDS changed from None to 1800 (30 min hard kill)
+  - Result: auditor now starts in seconds, completed 18-draft audit in 25 minutes
+
+[2026-03-22] — Auditor: mutually exclusive draft/image audit modes
+  - Problem: image audit was running alongside draft audit, generating images
+    for drafts that hadn't been approved yet — wasted work if drafts fail
+  - New logic: Python selects mode automatically based on draft state:
+      DRAFT AUDIT MODE — PENDING REVIEW drafts exist → audit drafts only, skip images
+      IMAGE AUDIT MODE — no PENDING REVIEW drafts → audit images for APPROVED drafts only
+  - Image audit flow: audit → flag → auto-trigger linkedin_image_gen.py --check
+    → re-audit regenerated images → log final result (manual review if still flagged)
+  - New function: get_approved_not_posted_draft_numbers() — finds APPROVED (not POSTED)
+  - New constant: IMAGE_GEN_SCRIPT in linkedin_auditor.py
+  - LINKEDIN-AUDITOR-WORKFLOW.md updated: added MODE SELECT section at top of CONTEXT
+
+[2026-03-22] — Auditor: image audit skips already-audited images via image-log.md
+  - Problem: image audit mode re-audited ALL APPROVED drafts including posts 8-15
+    which were already reviewed and ready to post — should never be touched again
+  - Fix: image-log.md extended with IMAGE AUDIT LOG section (with explanatory comments)
+      IMAGE PASSED  — auditor skips draft on all future runs
+      IMAGE FLAGGED — flagged for regen, will be re-audited after regeneration
+  - Bootstrap: drafts 8-15 manually marked IMAGE PASSED (approved before audit system)
+  - New constant: IMAGE_LOG in linkedin_auditor.py
+  - New function: get_image_audited_draft_numbers() — reads IMAGE PASSED from image-log.md
+  - New function: write_image_audit_results() — appends PASSED/FLAGGED after each cycle
+  - Image audit mode now: approved → filter IMAGE PASSED → audit remainder only
+  - Cycle 2 (re-audit) only processes previously flagged drafts, not full batch
+  - Drive sync for image audit mode now includes image-log.md
+
+[2026-03-22] — Image generator upgraded: Kroki → mmdc (Mermaid CLI)
+  - File: linkedin_image_gen.py (v2.1)
+  - Problem: Kroki PNG endpoint returned small raster images (~400-600px wide)
+    that were upscaled to 1200px — enlarging pixels caused blurry output
+  - Fix: switched to local mmdc rendering at RENDER_WIDTH=2400px, then scale
+    DOWN to TARGET_WIDTH=1200px (downscaling is always sharp)
+  - Added TARGET_HEIGHT=644 cap — tall diagrams scale down and are
+    center-padded to maintain 1200px canvas width
+  - Removed KROKI_URL, HEADERS, REQUEST_DELAY constants and urllib imports
+  - Added tempfile and subprocess imports
+  - Padding/font logic simplified — fixed base values used (output width is
+    always consistent; no more scale-dependent padding inflation)
+  - Privacy benefit: diagram code no longer sent to external Kroki server
+  - Prerequisite: mmdc v11.12.0 installed globally (npm install -g @mermaid-js/mermaid-cli)
+  - Performance: ~2-3s per image (Puppeteer startup) — acceptable for batch runs
+  - Tested: post-7-heighttest.png generated at 1296x567px, confirmed sharp
+  - test_image_height.py created during testing, deleted after confirmation
+
+================================================================================
+POSSIBLE FUTURE UPDATES
+================================================================================
+Priority order based on impact:
+
+[ ] 1. AUDIT BATCHING (High)
+        Split large draft batches into groups of 5-6 per Claude CLI call, run
+        sequentially, merge results. Fixes 25-min run times and reduces timeout risk.
+
+[ ] 2. STATUS DASHBOARD (High) — IN PROGRESS
+        Read-only script: shows current state of all drafts at a glance
+        (PENDING / AUDITOR APPROVED / APPROVED / POSTED counts, images generated,
+        next scheduled post date). Include RECOMMENDATIONS section — what needs
+        attention, what's ready to post, what's overdue.
+
+[ ] 3. PROJECT 2 IMAGE GENERATION (High — actionable now)
+        Run linkedin_image_planner.py to generate image-plan.json for posts 16-33,
+        then linkedin_image_gen.py to render images.
+        Posts 16-33 currently post text-only.
+
+[ ] 4. APPROVAL NOTIFICATION (Medium)
+        When auditor completes and marks drafts AUDITOR APPROVED, send a
+        notification (email or Windows toast) so Theresa knows to review
+        without having to manually check drafts.md.
+
+[ ] 5. LINKEDIN ENGAGEMENT PULL (Medium)
+        After posts go live, pull likes/comments/views per post via LinkedIn API
+        and log to a performance file. Over time shows which post types
+        (HOOK, TECHNICAL, CHALLENGE, etc.) perform best — feeds into generator.
+================================================================================
