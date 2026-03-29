@@ -1,6 +1,6 @@
 # LinkedIn Content Automation System
 
-An end-to-end AI-powered pipeline that generates, audits, and publishes LinkedIn content automatically — with human review as the only required manual step.
+An end-to-end AI-powered pipeline that generates, audits, and publishes LinkedIn content automatically, with human review as the only required manual step.
 
 Built to turn engineering project writeups into a consistent, high-quality LinkedIn presence without manual content work.
 
