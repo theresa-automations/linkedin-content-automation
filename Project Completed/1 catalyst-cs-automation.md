@@ -5,7 +5,7 @@
 
 ## What Was Built
 Fully automated AI customer service email processing system for a Shopify accessories brand
-operating across two international storefronts (Catalyst Case US + Catalyst Lifestyle International).
+operating across two international storefronts.
 
 ## Core Problem Solved
 All incoming customer emails required full manual review, classification, and response drafting.
