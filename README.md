@@ -2,7 +2,7 @@
 
 An end-to-end AI-powered pipeline that generates, audits, and publishes LinkedIn content automatically — with human review as the only required manual step.
 
-Built for a real business (Catalyst Case / Catalyst Lifestyle) to turn engineering project writeups into a consistent, high-quality LinkedIn presence without manual content work.
+Built to turn engineering project writeups into a consistent, high-quality LinkedIn presence without manual content work.
 
 ---
 
